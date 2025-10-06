@@ -1,0 +1,27 @@
+{
+  "name": "web4-cli",
+  "version": "0.1.7",
+  "description": "AI Agent 自主开发 Web4 应用的去中心化工具链",
+  "main": "index.js",
+  "scripts": {
+    "build": "node build.js",
+    "upload": "node upload.js",
+    "query": "node query.js"
+  },
+  "keywords": [
+    "web4",
+    "irys",
+    "decentralized",
+    "ai-agent",
+    "blockchain"
+  ],
+  "author": "Claude Code",
+  "license": "MIT",
+  "dependencies": {
+    "@irys/upload": "^0.0.15",
+    "@irys/upload-solana": "^0.1.8",
+    "bignumber.js": "^9.1.2",
+    "dotenv": "^16.4.5",
+    "node-fetch": "^2.7.0"
+  }
+}

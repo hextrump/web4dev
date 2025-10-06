@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web4 App</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: system-ui, -apple-system, sans-serif;
+            background: #f5f5f5;
+        }
+        #root {
+            min-height: 100vh;
+        }
+    </style>
+</head>
+<body>
+    <div id="root">
+        <!-- Dynamic content will be loaded here -->
+    </div>
+
+    <script>
+        // ==================== Console Logger ====================
+        const Debug = {
+            log(message, type = 'info') {
+                const time = new Date().toLocaleTimeString();
+                const prefix = `[${time}] [${type.toUpperCase()}]`;
+
+                switch(type) {
+                    case 'error':
+                        console.error(prefix, message);
+                        break;
+                    case 'warning':
+                        console.warn(prefix, message);
+                        break;
+                    case 'success':
+                        console.log(`%c${prefix} ${message}`, 'color: #51cf66');
+                        break;
+                    default:
+                        console.log(prefix, message);
+                }
+            },
+            inspect(obj, label = '') {
+                console.log(label || 'Object:', obj);
+            }
+        };
+
+        // ==================== Web4 Layout Manager ====================
+        class Web4Layout {
+            constructor(config) {
+                this.config = config || {};
+                this.layoutId = this.config.layoutId || null;
+                this.appName = this.config.appName || 'web4';
+                this.owner = this.config.owner || null;
+                this.init();
+            }
+
+            async init() {
+                try {
+                    Debug.log(`🚀 Initializing Web4 App: ${this.appName}`, 'info');
+                    if (this.layoutId) {
+                        Debug.log(`Using layout ID: ${this.layoutId}`, 'info');
+                        await this.loadLayoutById(this.layoutId);
+                    } else {
+                        Debug.log('No layout ID provided, loading default content', 'warning');
+                        this.loadDefaultContent();
+                    }
+                } catch (error) {
+                    Debug.log(`❌ Initialization error: ${error.message}`, 'error');
+                    console.error(error);
+                }
+            }
+
+            async loadLayoutById(layoutId) {
+                try {
+                    Debug.log(`📦 Fetching layout: ${layoutId}`, 'info');
+                    const response = await fetch(`https://gateway.irys.xyz/${layoutId}`);
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+
+                    const layout = await response.json();
+                    Debug.log('✅ Layout fetched successfully', 'success');
+                    this.applyLayout(layout);
+                } catch (error) {
+                    Debug.log(`❌ Failed to load layout: ${error.message}`, 'error');
+                    throw error;
+                }
+            }
+
+            applyLayout(layout) {
+                const root = document.getElementById('root');
+                Debug.log('📝 Applying layout to DOM', 'info');
+
+                try {
+                    // Apply HTML
+                    if (layout.html) {
+                        Debug.log('✓ Applying HTML content', 'info');
+                        root.innerHTML = layout.html;
+                        Debug.log('✅ HTML applied', 'success');
+                    }
+
+                    // Apply CSS
+                    if (layout.css) {
+                        Debug.log('✓ Applying CSS styles', 'info');
+                        const style = document.createElement('style');
+                        style.textContent = layout.css;
+                        document.head.appendChild(style);
+                        Debug.log('✅ CSS applied', 'success');
+                    }
+
+                    // Apply JavaScript
+                    if (layout.js) {
+                        Debug.log('✓ Applying JavaScript code', 'info');
+                        const script = document.createElement('script');
+                        script.textContent = layout.js;
+                        document.body.appendChild(script);
+                        Debug.log('✅ JavaScript applied', 'success');
+                    }
+
+                    Debug.log('🎉 Layout applied successfully', 'success');
+                } catch (error) {
+                    Debug.log(`❌ Error applying layout: ${error.message}`, 'error');
+                    throw error;
+                }
+            }
+
+            loadDefaultContent() {
+                const root = document.getElementById('root');
+                root.innerHTML = `
+                    <div style="max-width: 800px; margin: 100px auto; padding: 40px; background: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+                        <h1 style="color: #6366f1; margin-bottom: 20px;">🚀 Web4 Application</h1>
+                        <p style="font-size: 18px; line-height: 1.8; color: #333;">
+                            Welcome to your Web4 decentralized application!
+                        </p>
+                        <div style="background: #f0f9ff; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #6366f1;">
+                            <h3 style="margin: 0 0 10px 0; color: #6366f1;">⚙️ Configuration Required</h3>
+                            <p style="margin: 0; color: #666;">
+                                Please provide a <code>layoutId</code> in the Web4Layout constructor to load your layout component.
+                            </p>
+                        </div>
+                        <h3 style="color: #333; margin-top: 30px;">Quick Start:</h3>
+                        <ol style="line-height: 2; color: #666;">
+                            <li>Create your layout component</li>
+                            <li>Build: <code>node build.js project/layout.js</code></li>
+                            <li>Upload: <code>node upload.js project/layout.json --type=layout --version=0.1.0</code></li>
+                            <li>Update this HTML with the Transaction ID</li>
+                        </ol>
+                    </div>
+                `;
+                Debug.log('ℹ️ Default content loaded', 'info');
+            }
+        }
+
+        // ==================== Widget Loader ====================
+        async function loadWidget(containerId, widgetType, config = {}) {
+            Debug.log(`🔍 Loading widget: ${widgetType}`, 'info');
+
+            const appName = config.appName || 'web4';
+            const version = config.version || '1.0.0';
+            const owner = config.owner || null;
+
+            try {
+                // Build GraphQL query
+                let tags = [
+                    { name: "Content-Type", values: ["application/json"] },
+                    { name: appName, values: [widgetType] },
+                    { name: "Version", values: [version] }
+                ];
+
+                const queryParts = [
+                    `tags: [${tags.map(t => `{ name: "${t.name}", values: ${JSON.stringify(t.values)} }`).join(', ')}]`
+                ];
+
+                if (owner) {
+                    queryParts.push(`owners: ["${owner}"]`);
+                }
+
+                const query = `query GetWidget {
+                    transactions(
+                        ${queryParts.join(', ')},
+                        first: 1,
+                        order: DESC
+                    ) {
+                        edges {
+                            node {
+                                id
+                                address
+                                tags { name value }
+                            }
+                        }
+                    }
+                }`;
+
+                Debug.log(`📡 Querying GraphQL for ${widgetType}`, 'info');
+                const response = await fetch('https://uploader.irys.xyz/graphql', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query })
+                });
+
+                const result = await response.json();
+
+                if (result.data?.transactions?.edges?.length > 0) {
+                    const widgetId = result.data.transactions.edges[0].node.id;
+                    Debug.log(`✅ Found widget: ${widgetId}`, 'success');
+
+                    const widgetResponse = await fetch(`https://gateway.irys.xyz/${widgetId}`);
+                    const widget = await widgetResponse.json();
+
+                    applyWidget(containerId, widget);
+                    Debug.log(`✅ Widget ${widgetType} applied`, 'success');
+                } else {
+                    throw new Error(`Widget not found: ${widgetType}`);
+                }
+            } catch (error) {
+                Debug.log(`❌ Error loading widget ${widgetType}: ${error.message}`, 'error');
+                const container = document.getElementById(containerId);
+                if (container) {
+                    container.innerHTML = `<div style="padding: 20px; color: #999; text-align: center;">⚠️ Failed to load ${widgetType} widget</div>`;
+                }
+            }
+        }
+
+        // ==================== Widget Applier ====================
+        function applyWidget(containerId, widget) {
+            const container = document.getElementById(containerId);
+            if (!container) {
+                Debug.log(`⚠️ Container not found: ${containerId}`, 'warning');
+                return;
+            }
+
+            Debug.log(`📝 Applying widget to ${containerId}`, 'info');
+
+            // Clean up existing widget assets
+            document.querySelectorAll(`[data-widget="${containerId}"]`).forEach(el => el.remove());
+
+            // Apply HTML
+            if (widget.html) {
+                container.innerHTML = widget.html;
+            }
+
+            // Apply CSS
+            if (widget.css) {
+                const style = document.createElement('style');
+                style.setAttribute('data-widget', containerId);
+                style.textContent = widget.css;
+                document.head.appendChild(style);
+            }
+
+            // Apply JavaScript
+            if (widget.js) {
+                const script = document.createElement('script');
+                script.setAttribute('data-widget', containerId);
+                script.textContent = `(function() {
+                    try {
+                        ${widget.js}
+                    } catch (error) {
+                        Debug.log('Widget JS error: ' + error.message, 'error');
+                    }
+                })();`;
+                document.body.appendChild(script);
+            }
+        }
+
+        // ==================== Configuration ====================
+        const APP_CONFIG = {
+            layoutId: 'GooiHiKq5W3LmB3ADi1fv1R1Lh3oTvTPqS9mcu8vYQTo',  // Layout Transaction ID
+            appName: 'web4-test',  // Your app's unique name
+            owner: null  // Optional: your wallet address for verification
+        };
+
+        // ==================== Initialize ====================
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('%c🚀 Web4 App Starting', 'font-size: 14px; font-weight: bold; color: #6366f1');
+            new Web4Layout(APP_CONFIG);
+        });
+
+        // Global error handler
+        window.onerror = function(msg, url, line, col, error) {
+            console.error(`💥 Global error: ${msg} at ${line}:${col}`, error);
+            return false;
+        };
+
+        // Make functions globally available
+        window.loadWidget = loadWidget;
+        window.applyWidget = applyWidget;
+        window.Debug = Debug;
+    </script>
+</body>
+</html>
