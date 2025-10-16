@@ -91,7 +91,7 @@ async function uploadFile(irys, filePath, tags) {
     console.log("\n⏳ 正在上传到 Irys 网络...");
     const receipt = await irys.upload(buffer, { tags });
 
-    const uploadUrl = `https://gateway.irys.xyz/${receipt.id}`;
+    const uploadUrl = `https://uploader.irys.xyz/${receipt.id}`;
     console.log(`\n✅ 上传成功!`);
     console.log(`📍 Transaction ID: ${receipt.id}`);
     console.log(`🔗 访问链接: ${uploadUrl}`);
