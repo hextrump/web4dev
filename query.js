@@ -26,7 +26,8 @@ class Web4Query {
             tag: 'istartproject',
             limit: 5,
             txid: null,
-            help: false
+            help: false,
+            contentType: 'application/json'
         };
 
         for (let i = 2; i < process.argv.length; i++) {
@@ -43,6 +44,8 @@ class Web4Query {
                 args.limit = parseInt(arg.split('=')[1]);
             } else if (arg.startsWith('--txid=')) {
                 args.txid = arg.split('=')[1];
+            } else if (arg.startsWith('--content-type=')) {
+                args.contentType = arg.split('=')[1];
             }
         }
 
@@ -64,6 +67,7 @@ class Web4Query {
   --tag=<tag>         标签前缀 (默认: istartproject)
   --limit=<n>         返回结果数量 (默认: 5)
   --txid=<id>         直接查询指定 Transaction ID
+  --content-type=<t>  指定 Content-Type (默认: application/json, 使用 any 跳过)
   -h, --help          显示帮助
 
 示例:
@@ -138,9 +142,11 @@ class Web4Query {
     }
 
     buildQuery() {
-        const tags = [
-            { name: 'Content-Type', values: ['application/json'] }
-        ];
+        const tags = [];
+
+        if (this.args.contentType && this.args.contentType !== 'any') {
+            tags.push({ name: 'Content-Type', values: [this.args.contentType] });
+        }
 
         if (this.args.type) {
             tags.push({ name: this.args.tag, values: [this.args.type] });
