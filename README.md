@@ -34,7 +34,7 @@ Build and deploy Web4 applications using Irys decentralized storage without auth
 - ✅ AI agents can deploy autonomously
 
 ---
-
+irys api is uploader.irys.xyz all gateway keep uploader
 ## 🚀 Quick Start
 
 ### 1. Install
@@ -65,7 +65,7 @@ node upload.js project/index.html --version=1.0.0
 
 ### 3. Visit Your App
 
-Open the HTML transaction URL (e.g., `https://gateway.irys.xyz/YOUR_TXID`)
+Open the HTML transaction URL (e.g., `https://uploader.irys.xyz/YOUR_TXID`)
 
 You should see:
 - ✅ Dark theme page with theme toggle
